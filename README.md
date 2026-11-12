@@ -62,7 +62,7 @@ assignment's mixed-rollout experiment.
 
 ## Week 5 lab notes (student ID ending 3501)
 
-## Wrap-up answers
+### Wrap-up answers
 1. The two more things that I can change without recompiling is through the table entries where I can add, delete or modify routes, ports, tunnel exits and a table's default action such as making the ipv4_lpm's default forward instead of drop. Then the counters, registers, meters, multicast groups and mirroring sessions too where a program that has them. For a new program, a new header or parser state like how I did in Step 4, a new table, match field or action like matching on UDP port or decrementing a hop limit and any change to an apply block's magic like in Step 5.
 
 2. This is because the ingress still applied only ipv4_lpm is keyed on the IPv4 destination 10.1.0.3 so dst_id 2 was never looked at while the compiler had even removed myTunnel_exact. Now, the parser extracted the tunnel header making it valid and the deparser emits every valid header so nothing invalidates it, and it left tunnelled.

@@ -1,0 +1,62 @@
+(p4-python-venv) root@codespaces-963da7:/workspaces/p4-lab# python3 topo.py --id 3501 --s2-program tunnel_v1.p4
+*** Compiling tunnel.p4
+*** Compiling tunnel_v1.p4
+*** Configuring hosts
+h1 h2 h3 
+*** Starting controller
+
+*** Starting 2 switches
+s1 s2 
+*** s1: 6 table entries added
+*** s2: 6 table entries added
+*** Your hosts: h1 10.1.0.1, h2 10.1.0.2, h3 10.1.0.3
+*** Mixed rollout: s1 runs tunnel.p4, s2 runs tunnel_v1.p4
+*** Ready. Switch logs: logs/s1.txt, logs/s2.txt. What h2 and h3 receive: logs/h2.txt, logs/h3.txt
+*** Starting CLI:
+mininet> h2 timeout 8 tcpdump -c 1 -XX -ni h2-eth0 ether proto 0x1212 > logs/h2cap.txt 2>&1 &
+mininet> h1 python3 send.py 10.1.0.3 "mixed" --tunnel 2
+###[ Ethernet ]### 
+  dst       = ff:ff:ff:ff:ff:ff
+  src       = 00:00:00:00:00:01
+  type      = 0x1212
+###[ MyTunnel ]### 
+     proto_id  = 2048
+     dst_id    = 2
+     hop_limit = 8
+###[ IP ]### 
+        version   = 4
+        ihl       = 5
+        tos       = 0x0
+        len       = 33
+        id        = 1
+        flags     = 
+        frag      = 0
+        ttl       = 64
+        proto     = udp
+        chksum    = 0x66c6
+        src       = 10.1.0.1
+        dst       = 10.1.0.3
+        \options   \
+###[ UDP ]### 
+           sport     = 4321
+           dport     = 4321
+           len       = 13
+           chksum    = 0x803d
+###[ Raw ]### 
+              load      = 'mixed'
+
+Sent from h1-eth0.
+mininet> sh sleep 8; cat logs/h2cap.txt
+tcpdump: verbose output suppressed, use -v[v]... for full protocol decode
+listening on h2-eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+12:11:01.332399 00:00:00:00:00:01 > ff:ff:ff:ff:ff:ff, ethertype Unknown (0x1212), length 52: 
+        0x0000:  ffff ffff ffff 0000 0000 0001 1212 0800  ................
+        0x0010:  0002 0745 0000 2100 0100 0040 0d66 c60a  ...E..!....@.f..
+        0x0020:  0100 010a 0100 0310 e110 e100 0d80 3d6d  ..............=m
+        0x0030:  6978 6564                                ixed
+1 packet captured
+1 packet received by filter
+0 packets dropped by kernel
+mininet> sh cat logs/h2.txt
+Listening on h2-eth0...
+mininet>

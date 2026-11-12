@@ -59,3 +59,17 @@ assignment's mixed-rollout experiment.
 - **Save your work**: commit and push from the codespace (Source Control panel, or `git` in the
   terminal) — it goes to your own repository.
 - **When you've finished the lab**, delete the codespace at github.com/codespaces so it stops using your storage quota.
+
+## Week 5 lab notes (student ID ending 3501)
+
+### How to run it
+### What I did (Steps 1–6)
+### What we broke and why (Step 6)
+### Wrap-up answers
+1. The two more things that I can change without recompiling is through the table entries where I can add, delete or modify routes, ports, tunnel exits and a table's default action such as making the ipv4_lpm's default forward instead of drop. Then the counters, registers, meters, multicast groups and mirroring sessions too where a program that has them. For a new program, a new header or parser state like how I did in Step 4, a new table, match field or action like matching on UDP port or decrementing a hop limit and any change to an apply block's magic like in Step 5.
+
+2. This is because the ingress still applied only ipv4_lpm is keyed on the IPv4 destination 10.1.0.3 so dst_id 2 was never looked at while the compiler had even removed myTunnel_exact. Now, the parser extracted the tunnel header making it valid and the deparser emits every valid header so nothing invalidates it, and it left tunnelled.
+
+3. The tunnelled packet ran myTunnel_forward which only sets the egress port and never touches the IPv4's TTL so it kept send.py's 64 TTL. The ping replies ran ipv4_forward on s2 and then s1: 64 -> 63 -> 62
+
+4. The compiler first caught is that it warned myTunnel_exact was unused in Step 1 to 4 and it rejects syntax and type errors. It missed forwarding by IPv4 instead of the tunnel is Step 4, and the missing emit in Step 6. The compiler checks one program alone, only packets sent end to end, read in the logs, show whether parser, ingress, deparser and hosts agree.

@@ -6,8 +6,7 @@
 """
 import argparse
 
-from scapy.all import IP, UDP, ByteField, Ether, Packet, ShortField, bind_layers, get_if_hwaddr, get_if_list, sendp # type: ignore  # pylint: disable=no-name-in-module,import-error
-
+from scapy.all import IP, UDP, ByteField, Ether, Packet, ShortField, bind_layers, get_if_hwaddr, get_if_list, sendp  # type: ignore  # pylint: disable=no-name-in-module,import-error
 
 class MyTunnel(Packet):
     name = "MyTunnel"

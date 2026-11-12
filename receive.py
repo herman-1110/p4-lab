@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Print every lab packet that arrives at this host (run it in the background on a host)."""
+
 from scapy.all import IP, UDP, ByteField, Ether, Packet, Raw, ShortField, bind_layers, get_if_list, sniff # type: ignore  # pylint: disable=no-name-in-module,import-error
 
 

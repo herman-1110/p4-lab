@@ -13,12 +13,12 @@ Write each section in your own words, about your own runs. Quote the evidence fi
      3. h1 python3 send.py 10.1.0.3 "loop" --tunnel 3
      4. sh grep -c "Processing packet received" logs/s1.txt logs/s2.txt
      5. sh sleep 5; grep -c "Processing packet received" logs/s1.txt logs/s2.txt
-- The counts from the loop-before.txt are 675/673, then 1439/1441 five seconds later
+- The counts from the loop-before.txt are 675/673, then 1439/1441 five seconds later, about 765 more per switch in 5 seconds, rising together, so it’s one packet bouncing forever.
 - For the decrement of TTL, it doesnt stop an IPv4 loop because ipv4_forward subtracts 1 but never checks it, and bit<8> wraps 0 to 255, so if the TTL reaches 0, it will not stop it will still keep going on and on because it will go from 0 to 255 again.
 
 ## 2. Design: the hop limit
 
-- For the field size, I would go for 8 bits hop limit since 0-255 is far more than needed and the longest real path here is 2 switches. IPv4's TTL and IPv6's hop limit are also 8 bits. One byte is the smallest step because P4 headers must be the whole bytes and header grows from 4 to 5 bytes so each packet costs only 1 extra byte. As for where I would put it, is after the *dst_id*. This is due to *proto_id* and *dst_id* keep their position at bytes 0-1 and 2-3 so an old switch still reads them correctly and putting the field first would shift both old fields, taking bits from *dst_id* would shrink the exit numbers and break old switches’ lookups. Next is the known cost, which I’ll examine in C5 where an old switch still thinks IPv4 starts after *dst_id*, so it misreads the IPv4 header by one byte.
+- For the field size, I went for 8 bits hop limit since 0-255 is far more than needed and the longest real path here is 2 switches. IPv4's TTL and IPv6's hop limit are also 8 bits. One byte is the smallest step because P4 headers must be the whole bytes and header grows from 4 to 5 bytes so each packet costs only 1 extra byte. As for where I would put it, is after the *dst_id*. This is due to *proto_id* and *dst_id* keep their position at bytes 0-1 and 2-3 so an old switch still reads them correctly and putting the field first would shift both old fields, taking bits from *dst_id* would shrink the exit numbers and break old switches’ lookups. Next is the known cost, which I’ll examine in C5 where an old switch still thinks IPv4 starts after *dst_id*, so it misreads the IPv4 header by one byte.
 
 - For the starting value, it will be 8 which set by the send.py --hops. With “drop at 0”, a packet starting at 8 can cross exactly 8 switches. h1 to h2 crosses 2, so 2 is the minimum. --hops 1 is dropped at s2. 8 gives four times the headroom if the network grows, without changing the hosts. It’s still small enough that a loop dies fast. In C1’s loop, the packet makes 8 crossings and is dropped on the 9th pass, instead of looping forever.
 
